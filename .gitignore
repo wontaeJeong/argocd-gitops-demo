@@ -1,0 +1,9 @@
+.tmp/
+*.log
+*.tmp
+*.bak
+kubeconfig*
+*.kubeconfig
+application.yaml
+argocd/application.yaml
+.DS_Store
