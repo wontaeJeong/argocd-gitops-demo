@@ -1,0 +1,8 @@
+---
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+# The cluster name is set by Makefile with:
+# kind create cluster --name argocd-kind-lab \
+#   --image kindest/node:v1.31.2 --config kind/cluster.yaml
+nodes:
+  - role: control-plane
