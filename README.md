@@ -1,13 +1,13 @@
-# argocd-kind-lab
+# Cluster bootstrap
 
 로컬 개발환경에서 `kind` 클러스터 위에 Argo CD를 설치하고, 이 Git repository 안의 Kubernetes manifest를 Argo CD Application으로 배포해 보는 실습용 repository입니다. 이 구성은 production 구성이 아니라 학습과 테스트를 위한 local lab입니다.
 
-Argo CD는 kind 클러스터 내부의 `argocd` namespace에 설치됩니다. 사용자는 `kubectl port-forward`로 로컬 `https://localhost:8080`에 Argo CD UI/API를 노출한 뒤, `argocd` CLI와 브라우저로 접근합니다. 샘플 앱은 `apps/hello-app` manifest를 사용하며, Argo CD가 접근 가능한 Git remote URL을 `REPO_URL`로 전달해 Application을 생성합니다.
+Argo CD는 kind 클러스터 내부의 `argocd` namespace에 설치됩니다. 사용자는 `kubectl port-forward`로 로컬 `https://localhost:8080`에 Argo CD UI/API를 노출한 뒤, `argocd` CLI와 브라우저로 접근합니다. 샘플 앱은 repository root 기준 `cluster-bootstrap/apps/hello-app` manifest를 사용하며, Argo CD가 접근 가능한 Git remote URL을 `REPO_URL`로 전달해 Application을 생성합니다.
 
 ## 전체 구조
 
 ```text
-argocd-kind-lab/
+cluster-bootstrap/
   README.md
   Makefile
   .gitignore
@@ -42,7 +42,7 @@ argocd-kind-lab/
 
 ```bash
 git clone <this-repo>
-cd argocd-kind-lab
+cd cluster-bootstrap
 
 make cluster
 make install-argocd
@@ -154,7 +154,7 @@ git remote get-url origin
 make app-create REPO_URL=<your-git-repo-url>
 ```
 
-이 target은 `argocd/application.yaml.tpl`을 임시 파일로 렌더링한 뒤 `kubectl apply -f`로 Argo CD Application을 생성합니다. Application 이름은 `hello-app`이고, source path는 `apps/hello-app`, destination namespace는 `hello-app`입니다.
+이 target은 `argocd/application.yaml.tpl`을 임시 파일로 렌더링한 뒤 `kubectl apply -f`로 Argo CD Application을 생성합니다. Application 이름은 `hello-app`이고, source path는 repository root 기준 `cluster-bootstrap/apps/hello-app`, destination namespace는 `hello-app`입니다.
 
 기본 Application manifest에는 automated sync가 없습니다. 사용자가 `OutOfSync` 상태를 확인하고 수동으로 sync하는 흐름을 실습하기 위해서입니다.
 
