@@ -1,0 +1,19 @@
+appName: app
+
+database:
+  enabled: true
+  clusterName: app-db
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+  storage:
+    size: 1Gi
+  dbName: appdb
+  owner: app_user
+  secretName: app-db-credentials
+  localOnlyDummyPassword: local-only-dummy-password-change-me
+
+redis:
+  enabled: true
+  name: app-redis
+  image: redis:7-alpine
+  port: 6379

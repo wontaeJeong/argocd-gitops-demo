@@ -1,0 +1,13 @@
+{{- if .Values.redis.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.redis.name }}-connection
+  labels:
+    {{- include "app-data.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+data:
+  REDIS_HOST: {{ printf "%s.%s.svc.cluster.local" .Values.redis.name .Release.Namespace | quote }}
+  REDIS_PORT: {{ .Values.redis.port | quote }}
+{{- end }}
