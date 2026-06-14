@@ -1,0 +1,8 @@
+[submodule "cluster-bootstrap"]
+	path = cluster-bootstrap
+	url = https://github.com/wontaeJeong/argocd-gitops-demo.git
+	branch = cluster-bootstrap
+[submodule "platform-gitops"]
+	path = platform-gitops
+	url = https://github.com/wontaeJeong/argocd-gitops-demo.git
+	branch = platform-gitops
