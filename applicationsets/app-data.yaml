@@ -1,0 +1,64 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: app-data
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  generators:
+    - list:
+        elements:
+          - name: app-a
+            namespace: app-a
+            owner: app_a_user
+            password: local-only-dummy-password-change-me-app-a
+          - name: app-b
+            namespace: app-b
+            owner: app_b_user
+            password: local-only-dummy-password-change-me-app-b
+          - name: app-c
+            namespace: app-c
+            owner: app_c_user
+            password: local-only-dummy-password-change-me-app-c
+  template:
+    metadata:
+      name: '{{name}}-data'
+      annotations:
+        argocd.argoproj.io/sync-wave: "0"
+    spec:
+      project: apps
+      sources:
+        - repoURL: "${GITOPS_REPO_URL}"
+          targetRevision: HEAD
+          path: charts/app-data
+          helm:
+            releaseName: '{{name}}-data'
+            values: |
+              appName: '{{name}}'
+              database:
+                enabled: true
+                clusterName: '{{name}}-db'
+                instances: 1
+                imageName: ghcr.io/cloudnative-pg/postgresql:16
+                storage:
+                  size: 1Gi
+                dbName: appdb
+                owner: '{{owner}}'
+                secretName: '{{name}}-db-credentials'
+                localOnlyDummyPassword: '{{password}}'
+              redis:
+                enabled: true
+                name: '{{name}}-redis'
+                image: redis:7-alpine
+                port: 6379
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{namespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - FailOnSharedResource=true
