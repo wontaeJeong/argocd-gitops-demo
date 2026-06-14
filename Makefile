@@ -64,7 +64,7 @@ login: check-argocd-cli
 
 check-repo-url:
 	@if [ -z "$(REPO_URL)" ]; then \
-		echo "ERROR: REPO_URL is required. Example: make app-create REPO_URL=https://github.com/<user>/argocd-kind-lab.git" >&2; \
+		echo "ERROR: REPO_URL is required. Example: make app-create REPO_URL=https://github.com/<user>/cluster-bootstrap.git" >&2; \
 		exit 1; \
 	fi
 

@@ -9,7 +9,7 @@ spec:
   source:
     repoURL: ${REPO_URL}
     targetRevision: HEAD
-    path: apps/hello-app
+    path: cluster-bootstrap/apps/hello-app
   destination:
     server: https://kubernetes.default.svc
     namespace: hello-app
