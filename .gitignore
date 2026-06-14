@@ -1,0 +1,17 @@
+# Local editor and OS files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local runtime artifacts
+*.log
+*.tmp
+*.bak
+.tmp/
+
+# Local environment files
+.env
+.env.*
+!.env.example
