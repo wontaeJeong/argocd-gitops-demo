@@ -1,0 +1,75 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: apps
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  generators:
+    - list:
+        elements:
+          - name: app-a
+            namespace: app-a
+            imageRepository: prom/prometheus
+            imageTag: v2.55.1
+            containerPort: "9090"
+            host: app-a.localtest.me
+            healthPath: /-/healthy
+          - name: app-b
+            namespace: app-b
+            imageRepository: prom/alertmanager
+            imageTag: v0.27.0
+            containerPort: "9093"
+            host: app-b.localtest.me
+            healthPath: /-/healthy
+          - name: app-c
+            namespace: app-c
+            imageRepository: prom/pushgateway
+            imageTag: v1.9.0
+            containerPort: "9091"
+            host: app-c.localtest.me
+            healthPath: /-/healthy
+  template:
+    metadata:
+      name: '{{name}}'
+      annotations:
+        argocd.argoproj.io/sync-wave: "5"
+    spec:
+      project: apps
+      sources:
+        - repoURL: "${GITOPS_REPO_URL}"
+          targetRevision: HEAD
+          path: charts/demo-app
+          helm:
+            releaseName: '{{name}}'
+            values: |
+              nameOverride: '{{name}}'
+              fullnameOverride: '{{name}}'
+              image:
+                repository: '{{imageRepository}}'
+                tag: '{{imageTag}}'
+                pullPolicy: IfNotPresent
+              containerPort: {{containerPort}}
+              service:
+                port: {{containerPort}}
+              ingress:
+                enabled: true
+                className: nginx
+                host: '{{host}}'
+              probes:
+                path: '{{healthPath}}'
+              monitoring:
+                serviceMonitor:
+                  enabled: true
+                  path: /metrics
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{namespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - FailOnSharedResource=true
