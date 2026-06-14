@@ -1,0 +1,60 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: platform-addons
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  generators:
+    - list:
+        elements:
+          - name: ingress-nginx
+            namespace: ingress-nginx
+            repoURL: https://kubernetes.github.io/ingress-nginx
+            chart: ingress-nginx
+            chartVersion: 4.15.1
+            releaseName: ingress-nginx
+            valuesFile: clusters/local/platform/ingress-nginx/values.yaml
+          - name: cnpg-operator
+            namespace: cnpg-system
+            repoURL: https://cloudnative-pg.github.io/charts
+            chart: cloudnative-pg
+            chartVersion: 0.28.2
+            releaseName: cnpg-operator
+            valuesFile: clusters/local/platform/cnpg-operator/values.yaml
+          - name: kube-prometheus-stack
+            namespace: monitoring
+            repoURL: https://prometheus-community.github.io/helm-charts
+            chart: kube-prometheus-stack
+            chartVersion: 86.1.0
+            releaseName: kube-prometheus-stack
+            valuesFile: clusters/local/platform/kube-prometheus-stack/values.yaml
+  template:
+    metadata:
+      name: '{{name}}'
+      annotations:
+        argocd.argoproj.io/sync-wave: "-5"
+    spec:
+      project: platform
+      sources:
+        - repoURL: '{{repoURL}}'
+          chart: '{{chart}}'
+          targetRevision: '{{chartVersion}}'
+          helm:
+            releaseName: '{{releaseName}}'
+            valueFiles:
+              - $values/{{valuesFile}}
+        - repoURL: "${GITOPS_REPO_URL}"
+          targetRevision: HEAD
+          ref: values
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{namespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - FailOnSharedResource=true
